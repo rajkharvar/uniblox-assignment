@@ -32,7 +32,7 @@ export function checkout(userId: string, discountCode?: string): Order {
   }
 
   const total = subtotal - discountAmount;
-  const orderCount = store.incrementOrderCount();
+  store.incrementOrderCount();
 
   const order: Order = {
     id: uuidv4(),
