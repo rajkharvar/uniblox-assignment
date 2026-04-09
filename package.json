@@ -1,0 +1,9 @@
+{
+  "name": "uniblox-ecommerce",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter backend dev",
+    "test": "pnpm --filter backend test",
+    "build": "pnpm --filter backend build"
+  }
+}
