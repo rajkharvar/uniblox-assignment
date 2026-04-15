@@ -1,5 +1,6 @@
 import { Product, Cart, Order, DiscountCode, StoreStats } from "../models";
 import { SEED_PRODUCTS } from "../data/products";
+import { config } from "../config";
 
 interface StoreState {
   products: Product[];
@@ -8,6 +9,7 @@ interface StoreState {
   discountCodes: Map<string, DiscountCode>;
   orderCount: number;
   lastDiscountOrderCount: number;
+  requests: Map<string, number[]> // userId -> timestamp[]
 }
 
 class Store {
@@ -25,6 +27,7 @@ class Store {
       discountCodes: new Map(),
       orderCount: 0,
       lastDiscountOrderCount: 0,
+      requests: new Map() // userId -> requestTimestamp[]
     };
   }
 
@@ -160,6 +163,35 @@ class Store {
 
   reset(): void {
     this.state = this.initialState();
+  }
+
+  // Requests
+
+  getRequests(userId: string): number[] {
+    let requests = this.state.requests.get(userId);
+    if (!requests) {
+      requests = [];
+      this.state.requests.set(userId, requests);
+    }
+    return requests;
+  }
+
+  isAllowed(userId: string): boolean {
+    const now = Math.floor(Date.now() / 1000);
+    const requests = this.getRequests(userId);
+
+    const recent = requests.filter(
+      (reqTime) => now - reqTime <= config.WINDOW_IN_SECONDS
+    );
+
+    if (recent.length >= config.MAX_REQUESTS) {
+      this.state.requests.set(userId, recent);
+      return false;
+    }
+
+    recent.push(now);
+    this.state.requests.set(userId, recent);
+    return true;
   }
 }
 

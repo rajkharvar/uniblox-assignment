@@ -5,6 +5,7 @@ import cartRoutes from "./routes/cart";
 import checkoutRoutes from "./routes/checkout";
 import adminRoutes from "./routes/admin";
 import { errorHandler } from "./middleware/error-handler";
+import { rateLimiter } from "./middleware/rate-limiter";
 
 const app = express();
 
@@ -12,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/products", productRoutes);
-app.use("/api/cart", cartRoutes);
+app.use("/api/cart", rateLimiter, cartRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/admin", adminRoutes);
 
